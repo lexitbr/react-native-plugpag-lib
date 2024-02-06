@@ -1,6 +1,6 @@
 {
-  "name": "react-native-pagseguro-plugpag2",
-  "version": "0.1.1",
+  "name": "react-native-plugpag-lib",
+  "version": "1.0.0",
   "description": "Integre facilmente as principais formas de pagamento da PagSeguro em seus aplicativos React Native através deste módulo nativo.",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
@@ -47,13 +47,22 @@
     "pagseguro",
     "plugpag"
   ],
-  "repository": "https://github.com/fcamargo10/react-native-pagseguro-plugpag",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lexitbr/react-native-plugpag.git"
+  },
   "author": "brunodsazevedo <bruno.ds.azevedo@gmail.com> (https://github.com/brunodsazevedo)",
+  "maintainers": [
+    {
+      "name": "Filipe Camargo",
+      "email": "dev@lexit.com.br"
+    }
+  ],
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/brunodsazevedo/react-native-pagseguro-plugpag/issues"
+    "url": "https://github.com/lexitbr/react-native-plugpag/issues"
   },
-  "homepage": "https://github.com/brunodsazevedo/react-native-pagseguro-plugpag#readme",
+  "homepage": "https://github.com/lexitbr/react-native-plugpag#readme",
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
   },
