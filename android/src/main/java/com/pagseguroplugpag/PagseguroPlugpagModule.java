@@ -51,7 +51,8 @@ public class PagseguroPlugpagModule extends ReactContextBaseJavaModule {
   private String getPassword = null;
 
   private PackageInfo getPackageInfo() throws Exception {
-    return getReactApplicationContext().getPackageManager().getPackageInfo(getReactApplicationContext().getPackageName(), 0);
+    return getReactApplicationContext().getPackageManager()
+        .getPackageInfo(getReactApplicationContext().getPackageName(), 0);
   }
 
   public PagseguroPlugpagModule(ReactApplicationContext reactContext) {
@@ -82,7 +83,6 @@ public class PagseguroPlugpagModule extends ReactContextBaseJavaModule {
     constants.put("ACTION_POST_OPERATION", PlugPag.ACTION_POST_OPERATION);
     constants.put("ACTION_PRE_OPERATION", PlugPag.ACTION_PRE_OPERATION);
     constants.put("ACTION_UPDATE", PlugPag.ACTION_UPDATE);
-
 
     constants.put("AUTHENTICATION_FAILED", PlugPag.AUTHENTICATION_FAILED);
     constants.put("COMMUNICATION_ERROR", PlugPag.COMMUNICATION_ERROR);
@@ -115,6 +115,38 @@ public class PagseguroPlugpagModule extends ReactContextBaseJavaModule {
       throw new RuntimeException(e);
     }
     plugPag = new PlugPag(reactContext);
+  }
+
+  /**
+   * Aborta a operação.
+   * 
+   * @param promise
+   */
+  @ReactMethod
+  public void doAbort(Promise promise) {
+    final ExecutorService executor = Executors.newSingleThreadExecutor();
+
+    executor.execute(() -> {
+      try {
+        PlugPagAbortResult abortResult = plugPag.abort();
+        final WritableMap map = Arguments.createMap();
+        map.putBoolean("result", abortResult.getResult() == PlugPag.RET_OK);
+
+        promise.resolve(map);
+      } catch (Exception error) {
+        Log.v("DoAbortError", error.getMessage());
+        promise.reject("DoAbortError", error);
+      } finally {
+        executor.shutdown();
+        try {
+          if (!executor.awaitTermination(800, TimeUnit.MILLISECONDS)) {
+            executor.shutdownNow();
+          }
+        } catch (InterruptedException e) {
+          executor.shutdownNow();
+        }
+      }
+    });
   }
 
   // Ativa terminal e faz o pagamento
@@ -169,14 +201,15 @@ public class PagseguroPlugpagModule extends ReactContextBaseJavaModule {
         WritableMap params = Arguments.createMap();
         params.putInt("code", plugPagEventData.getEventCode());
 
-        if (plugPagEventData.getEventCode() == PlugPagEventData.EVENT_CODE_DIGIT_PASSWORD || plugPagEventData.getEventCode() == PlugPagEventData.EVENT_CODE_NO_PASSWORD) {
+        if (plugPagEventData.getEventCode() == PlugPagEventData.EVENT_CODE_DIGIT_PASSWORD
+            || plugPagEventData.getEventCode() == PlugPagEventData.EVENT_CODE_NO_PASSWORD) {
           if (plugPagEventData.getEventCode() == PlugPagEventData.EVENT_CODE_DIGIT_PASSWORD) {
             countPassword++;
           } else if (plugPagEventData.getEventCode() == PlugPagEventData.EVENT_CODE_NO_PASSWORD) {
             countPassword = 0;
           }
 
-          if (countPassword == 0 ) {
+          if (countPassword == 0) {
             getPassword = "Senha:";
           } else if (countPassword == 1) {
             getPassword = "Senha: *";
@@ -261,14 +294,15 @@ public class PagseguroPlugpagModule extends ReactContextBaseJavaModule {
         WritableMap params = Arguments.createMap();
         params.putInt("code", plugPagEventData.getEventCode());
 
-        if (plugPagEventData.getEventCode() == PlugPagEventData.EVENT_CODE_DIGIT_PASSWORD || plugPagEventData.getEventCode() == PlugPagEventData.EVENT_CODE_NO_PASSWORD) {
+        if (plugPagEventData.getEventCode() == PlugPagEventData.EVENT_CODE_DIGIT_PASSWORD
+            || plugPagEventData.getEventCode() == PlugPagEventData.EVENT_CODE_NO_PASSWORD) {
           if (plugPagEventData.getEventCode() == PlugPagEventData.EVENT_CODE_DIGIT_PASSWORD) {
             countPassword++;
           } else if (plugPagEventData.getEventCode() == PlugPagEventData.EVENT_CODE_NO_PASSWORD) {
             countPassword = 0;
           }
 
-          if (countPassword == 0 ) {
+          if (countPassword == 0) {
             getPassword = "Senha:";
           } else if (countPassword == 1) {
             getPassword = "Senha: *";
@@ -366,7 +400,7 @@ public class PagseguroPlugpagModule extends ReactContextBaseJavaModule {
       public void run() {
         try {
           // Cria objeto com informações da impressão
-          final PlugPagPrinterData file = new PlugPagPrinterData(filePath , 4, 10 * 12);
+          final PlugPagPrinterData file = new PlugPagPrinterData(filePath, 4, 10 * 12);
 
           PlugPagPrintResult result = plugPag.printFromFile(file);
 
@@ -377,7 +411,7 @@ public class PagseguroPlugpagModule extends ReactContextBaseJavaModule {
           promise.resolve(map);
           System.out.print("Message =>" + result.getMessage());
 
-          if(result.getResult() != 0) {
+          if (result.getResult() != 0) {
             throw new AppException(result.getMessage());
           }
           executor.isTerminated();

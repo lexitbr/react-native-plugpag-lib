@@ -19,7 +19,7 @@ import {
   refundPayment,
   plugPag,
   type PaymentTransactionResponseProps,
-} from 'react-native-pagseguro-plugpag';
+} from 'react-native-plugpag-lib';
 
 import LogoImg from './assets/react-native-pagseguro-plugpag-logo.png';
 
