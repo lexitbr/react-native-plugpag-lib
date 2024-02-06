@@ -1,5 +1,5 @@
 <h1 align="center">
-  <img alt="react-native-pagseguro-plugpag" title="react-native-pagseguro-plugpag" style="margin-bottom: 16px" src=".github/images/react-native-pagseguro-plugpag-logo.png" />
+  <img alt="react-native-plugpag-lib" title="react-native-plugpag-lib" style="margin-bottom: 16px" src=".github/images/react-native-plugpag-lib-logo.png" />
 
   React Native Pagseguro Plugpag
 </h1>
@@ -18,11 +18,11 @@ React Native Pagseguro Plugpag is a library aimed at integrating with the native
 
 Installing with Yarn:
 ```sh
-yarn add react-native-pagseguro-plugpag
+yarn add react-native-plugpag-lib
 ```
 Installing with npm:
 ```sh
-npm install react-native-pagseguro-plugpag
+npm install react-native-plugpag-lib
 ```
 ### Configuration in React Native
 
@@ -47,12 +47,12 @@ dependencies {
 ### Configuration in Expo
 ***NOTE***: The library does not support running on ***Expo Go*** due to its handling of libraries. The PlugPag Wrapper library is designed for use with Pagseguro's Android devices. Therefore, you need to use ***expo-dev-client*** to expose the android folder of your Expo project.
 
-Add the react-native-pagseguro-plugpag plugin to `app.json` or `app.config.js`:
+Add the react-native-plugpag-lib plugin to `app.json` or `app.config.js`:
 ```
 {
   "expo": {
     "plugins": [
-      "react-native-pagseguro-plugpag"
+      "react-native-plugpag-lib"
     ]
   }
 }
@@ -83,7 +83,7 @@ Example for activating a pin pad terminal.
 ***NOTE***: For development terminals, the code `403938` is commonly used. If it doesn't work, contact Pagseguro support.
 
 ```JS
-import { initializeAndActivatePinPad } from 'react-native-pagseguro-plugpag';
+import { initializeAndActivatePinPad } from 'react-native-plugpag-lib';
 
 async function handleInitializeAndActivatePinPad() {
   try {
@@ -104,7 +104,7 @@ async function handleInitializeAndActivatePinPad() {
 
 Example for making credit card transactions with R$ 25.00:
 ```js
-import { plugPag, doPayment } from 'react-native-pagseguro-plugpag';
+import { plugPag, doPayment } from 'react-native-plugpag-lib';
 
 async function handleDoPaymentCreditType() {
   try {
@@ -129,7 +129,7 @@ async function handleDoPaymentCreditType() {
 
 Example for making debit card transactions with R$ 25.00:
 ```js
-import { plugPag, doPayment } from 'react-native-pagseguro-plugpag';
+import { plugPag, doPayment } from 'react-native-plugpag-lib';
 
 async function handleDoPaymentDebitType() {
   try {
@@ -181,7 +181,7 @@ async function handleRefundLastTransaction() {
 Example for abort a transaction:
 
 ```JS
-import { doAbort } from 'react-native-pagseguro-plugpag';
+import { doAbort } from 'react-native-plugpag-lib';
 
 async function handleAbortTransaction() {
   try {

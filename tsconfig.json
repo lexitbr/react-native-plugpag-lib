@@ -2,7 +2,7 @@
   "compilerOptions": {
     "baseUrl": "./",
     "paths": {
-      "react-native-plugpag": ["./src/index"]
+      "react-native-plugpag-lib": ["./src/index"]
     },
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,

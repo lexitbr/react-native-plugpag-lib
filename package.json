@@ -49,7 +49,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/lexitbr/react-native-plugpag.git"
+    "url": "git+https://github.com/lexitbr/react-native-plugpag-lib.git"
   },
   "author": "brunodsazevedo <bruno.ds.azevedo@gmail.com> (https://github.com/brunodsazevedo)",
   "maintainers": [
@@ -60,9 +60,9 @@
   ],
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/lexitbr/react-native-plugpag/issues"
+    "url": "https://github.com/lexitbr/react-native-plugpag-lib/issues"
   },
-  "homepage": "https://github.com/lexitbr/react-native-plugpag#readme",
+  "homepage": "https://github.com/lexitbr/react-native-plugpag-lib#readme",
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
   },
