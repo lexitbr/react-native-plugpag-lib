@@ -87,6 +87,8 @@ export type AbortResponseProps = {
   result: boolean;
 };
 
+export type ReadNFCCardResponseProps = any;
+
 import { useEffect, useState } from 'react';
 
 const { PagseguroPlugpag } = NativeModules;
@@ -180,6 +182,15 @@ export function useTransactionPaymentEvent() {
 export async function doAbort(): Promise<AbortResponseProps> {
   try {
     return PagseguroPlugpag.doAbort();
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+export async function readNFCCard(): Promise<ReadNFCCardResponseProps> {
+  try {
+    return PagseguroPlugpag.readNFCCard();
   } catch (error) {
     console.error(error);
     throw error;

@@ -119,7 +119,7 @@ public class PagseguroPlugpagModule extends ReactContextBaseJavaModule {
 
   /**
    * Aborta a operação.
-   * 
+   *
    * @param promise
    */
   @ReactMethod
@@ -148,6 +148,27 @@ public class PagseguroPlugpagModule extends ReactContextBaseJavaModule {
       }
     });
   }
+
+  /**
+   * Lê um cartão NFC
+   *
+   * @param promise
+   */
+  public void readNFCCard(Promise promise) {
+    try {
+      PlugPag plugpag = new PlugPag(context);
+      PlugPagNearFieldCardData dataCard = new PlugPagNearFieldCardData();
+      dataCard.setStartSlot(1);
+      dataCard.setEndSlot(1);
+
+      PlugPagNFCResult result = plugpag.readFromNFCCard(dataCard);
+
+      promise.resolve(result);
+    } catch (ExecutionException e) {
+      Log.d("ReadNFCCardError", e.getMessage());
+      promise.reject("error", e.getMessage());
+    }
+}
 
   // Ativa terminal e faz o pagamento
   @ReactMethod
