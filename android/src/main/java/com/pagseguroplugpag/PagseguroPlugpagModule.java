@@ -31,6 +31,7 @@ import br.com.uol.pagseguro.plugpagservice.wrapper.PlugPagAppIdentification;
 import br.com.uol.pagseguro.plugpagservice.wrapper.PlugPagEventData;
 import br.com.uol.pagseguro.plugpagservice.wrapper.PlugPagEventListener;
 import br.com.uol.pagseguro.plugpagservice.wrapper.PlugPagInitializationResult;
+import br.com.uol.pagseguro.plugpagservice.wrapper.PlugPagNearFieldCardData;
 import br.com.uol.pagseguro.plugpagservice.wrapper.PlugPagPaymentData;
 import br.com.uol.pagseguro.plugpagservice.wrapper.PlugPagPrintResult;
 import br.com.uol.pagseguro.plugpagservice.wrapper.PlugPagPrinterData;
@@ -38,6 +39,7 @@ import br.com.uol.pagseguro.plugpagservice.wrapper.PlugPagPrinterListener;
 import br.com.uol.pagseguro.plugpagservice.wrapper.PlugPagTransactionResult;
 import br.com.uol.pagseguro.plugpagservice.wrapper.PlugPagVoidData;
 import br.com.uol.pagseguro.plugpagservice.wrapper.PlugPagAbortResult;
+import br.com.uol.pagseguro.plugpagservice.wrapper.data.result.PlugPagNFCInfosResultDirectly;
 
 @ReactModule(name = PagseguroPlugpagModule.NAME)
 public class PagseguroPlugpagModule extends ReactContextBaseJavaModule {
@@ -52,7 +54,7 @@ public class PagseguroPlugpagModule extends ReactContextBaseJavaModule {
 
   private PackageInfo getPackageInfo() throws Exception {
     return getReactApplicationContext().getPackageManager()
-        .getPackageInfo(getReactApplicationContext().getPackageName(), 0);
+            .getPackageInfo(getReactApplicationContext().getPackageName(), 0);
   }
 
   public PagseguroPlugpagModule(ReactApplicationContext reactContext) {
@@ -149,26 +151,43 @@ public class PagseguroPlugpagModule extends ReactContextBaseJavaModule {
     });
   }
 
+
+  // Exemplo de função para extrair e converter o serial number (UID) do cartão NFC
+  public static String extractUIDFromResult(byte[] serialNumberBytes) {
+    StringBuilder uidBuilder = new StringBuilder();
+    for (int byteValue : serialNumberBytes) {
+      uidBuilder.append(String.format("%02X", byteValue & 0xFF));
+    }
+    return uidBuilder.toString();
+  }
+
   /**
    * Lê um cartão NFC
    *
    * @param promise
    */
+  @ReactMethod
   public void readNFCCard(Promise promise) {
     try {
-      PlugPag plugpag = new PlugPag(context);
-      PlugPagNearFieldCardData dataCard = new PlugPagNearFieldCardData();
-      dataCard.setStartSlot(1);
-      dataCard.setEndSlot(1);
+      setAppIdentification();
 
-      PlugPagNFCResult result = plugpag.readFromNFCCard(dataCard);
+      // Starta a antena NFC
+      int resultStartNfc = plugPag.startNFCCardDirectly();
 
-      promise.resolve(result);
-    } catch (ExecutionException e) {
+      PlugPagNFCInfosResultDirectly plugPagNFCInfosResult = plugPag.detectNfcCardDirectly(PlugPagNearFieldCardData.ONLY_M, 2000);
+
+      byte[] serialNumberBytes = plugPagNFCInfosResult.getSerialNumber();
+
+      final WritableMap map = Arguments.createMap();
+      map.putString("uid", extractUIDFromResult(serialNumberBytes));
+
+      plugPag.stopNFCCardDirectly();
+      promise.resolve(map);
+    } catch (Exception e) {
       Log.d("ReadNFCCardError", e.getMessage());
       promise.reject("error", e.getMessage());
     }
-}
+  }
 
   // Ativa terminal e faz o pagamento
   @ReactMethod
@@ -223,7 +242,7 @@ public class PagseguroPlugpagModule extends ReactContextBaseJavaModule {
         params.putInt("code", plugPagEventData.getEventCode());
 
         if (plugPagEventData.getEventCode() == PlugPagEventData.EVENT_CODE_DIGIT_PASSWORD
-            || plugPagEventData.getEventCode() == PlugPagEventData.EVENT_CODE_NO_PASSWORD) {
+                || plugPagEventData.getEventCode() == PlugPagEventData.EVENT_CODE_NO_PASSWORD) {
           if (plugPagEventData.getEventCode() == PlugPagEventData.EVENT_CODE_DIGIT_PASSWORD) {
             countPassword++;
           } else if (plugPagEventData.getEventCode() == PlugPagEventData.EVENT_CODE_NO_PASSWORD) {
@@ -237,13 +256,13 @@ public class PagseguroPlugpagModule extends ReactContextBaseJavaModule {
           } else if (countPassword == 2) {
             getPassword = "Senha: **";
           } else if (countPassword == 3) {
-            getPassword = "Senha: ***";
+            getPassword = "Senha: *";
           } else if (countPassword == 4) {
-            getPassword = "Senha: ****";
+            getPassword = "Senha: **";
           } else if (countPassword == 5) {
-            getPassword = "Senha: *****";
+            getPassword = "Senha: ***";
           } else if (countPassword == 6 || countPassword > 6) {
-            getPassword = "Senha: ******";
+            getPassword = "Senha: **";
           }
 
           params.putString("message", getPassword);
@@ -316,7 +335,7 @@ public class PagseguroPlugpagModule extends ReactContextBaseJavaModule {
         params.putInt("code", plugPagEventData.getEventCode());
 
         if (plugPagEventData.getEventCode() == PlugPagEventData.EVENT_CODE_DIGIT_PASSWORD
-            || plugPagEventData.getEventCode() == PlugPagEventData.EVENT_CODE_NO_PASSWORD) {
+                || plugPagEventData.getEventCode() == PlugPagEventData.EVENT_CODE_NO_PASSWORD) {
           if (plugPagEventData.getEventCode() == PlugPagEventData.EVENT_CODE_DIGIT_PASSWORD) {
             countPassword++;
           } else if (plugPagEventData.getEventCode() == PlugPagEventData.EVENT_CODE_NO_PASSWORD) {
@@ -330,13 +349,13 @@ public class PagseguroPlugpagModule extends ReactContextBaseJavaModule {
           } else if (countPassword == 2) {
             getPassword = "Senha: **";
           } else if (countPassword == 3) {
-            getPassword = "Senha: ***";
+            getPassword = "Senha: *";
           } else if (countPassword == 4) {
-            getPassword = "Senha: ****";
+            getPassword = "Senha: **";
           } else if (countPassword == 5) {
-            getPassword = "Senha: *****";
+            getPassword = "Senha: ***";
           } else if (countPassword == 6 || countPassword > 6) {
-            getPassword = "Senha: ******";
+            getPassword = "Senha: **";
           }
 
           params.putString("message", getPassword);
