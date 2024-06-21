@@ -87,7 +87,9 @@ export type AbortResponseProps = {
   result: boolean;
 };
 
-export type ReadNFCCardResponseProps = any;
+export type ReadNFCCardResponseProps = {
+  uid: string;
+};
 
 import { useEffect, useState } from 'react';
 

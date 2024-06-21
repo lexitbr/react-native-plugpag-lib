@@ -161,32 +161,46 @@ public class PagseguroPlugpagModule extends ReactContextBaseJavaModule {
     return uidBuilder.toString();
   }
 
-  /**
+/**
    * Lê um cartão NFC
    *
    * @param promise
    */
   @ReactMethod
   public void readNFCCard(Promise promise) {
-    try {
-      setAppIdentification();
+    setAppIdentification();
 
-      // Starta a antena NFC
-      int resultStartNfc = plugPag.startNFCCardDirectly();
+    final ExecutorService executor = Executors.newSingleThreadExecutor();
 
-      PlugPagNFCInfosResultDirectly plugPagNFCInfosResult = plugPag.detectNfcCardDirectly(PlugPagNearFieldCardData.ONLY_M, 2000);
+    Runnable runnableTask = new Runnable() {
+      @Override
+      public void run() {
+        try {
+          // Starta a antena NFC
+          int resultStartNfc = plugPag.startNFCCardDirectly();
 
-      byte[] serialNumberBytes = plugPagNFCInfosResult.getSerialNumber();
+          PlugPagNFCInfosResultDirectly plugPagNFCInfosResult = plugPag.detectNfcCardDirectly(PlugPagNearFieldCardData.ONLY_M, 2000);
 
-      final WritableMap map = Arguments.createMap();
-      map.putString("uid", extractUIDFromResult(serialNumberBytes));
+          byte[] serialNumberBytes = plugPagNFCInfosResult.getSerialNumber();
 
-      plugPag.stopNFCCardDirectly();
-      promise.resolve(map);
-    } catch (Exception e) {
-      Log.d("ReadNFCCardError", e.getMessage());
-      promise.reject("error", e.getMessage());
-    }
+          final WritableMap map = Arguments.createMap();
+          map.putString("uid", extractUIDFromResult(serialNumberBytes));
+
+          plugPag.stopNFCCardDirectly();
+          promise.resolve(map);
+          executor.isTerminated();
+          System.gc();
+        } catch (Exception error) {
+          Log.d("ReadNFCCardError", e.getMessage());
+          promise.reject("error", e.getMessage());
+          executor.isTerminated();
+          System.gc();
+        }
+      }
+    };
+
+    executor.execute(runnableTask);
+    executor.shutdown();
   }
 
   // Ativa terminal e faz o pagamento
