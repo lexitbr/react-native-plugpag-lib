@@ -191,8 +191,8 @@ public class PagseguroPlugpagModule extends ReactContextBaseJavaModule {
           executor.isTerminated();
           System.gc();
         } catch (Exception error) {
-          Log.d("ReadNFCCardError", e.getMessage());
-          promise.reject("error", e.getMessage());
+          Log.d("ReadNFCCardError", error.getMessage());
+          promise.reject("error", error.getMessage());
           executor.isTerminated();
           System.gc();
         }
