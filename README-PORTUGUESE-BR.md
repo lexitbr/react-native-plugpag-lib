@@ -76,6 +76,8 @@ npx expo prebuild -p android --clean
 
 ***doAbort***: aborta a transação atual.
 
+***readNFCCard***: permite a leitura de cartões NFC.
+
 ***reprintCustomerReceipt***: permite reimprimir o recibo do cliente da última venda efetuada.
 
 ### Exemplos de uso
@@ -195,6 +197,25 @@ async function handleAbortTransaction() {
   } catch (error) {
     console.log(error);
     Alert.alert('Erro ao abortar transação');
+  }
+}
+```
+
+Exemplo para ler um cartão NFC:
+
+```JS
+import { readNFCCard } from 'react-native-pagseguro-plugpag';
+
+async function handleReadNFCCard() {
+  try {
+    const response = await readNFCCard();
+
+    if (response.uid) {
+      console.log('Cartão NFC lido com sucesso');
+    }
+  } catch (error) {
+    console.log(error);
+    Alert.alert('Erro ao ler cartão NFC');
   }
 }
 ```
