@@ -203,6 +203,40 @@ public class PagseguroPlugpagModule extends ReactContextBaseJavaModule {
     executor.shutdown();
   }
 
+/**
+   * Print customer receipt
+   *
+   * @param promise
+   */
+  @ReactMethod
+  public void reprintCustomerReceipt(Promise promise) {
+    setAppIdentification();
+
+  final ExecutorService executor = Executors.newSingleThreadExecutor();
+
+    Runnable runnableTask = new Runnable() {
+      @Override
+      public void run() {
+        try {
+          PlugPagPrintResult result = plugPag.rereprintCustomerReceipt();
+
+          if (result.getResult() != 0) {
+            throw new AppException(result.getMessage());
+          }
+          executor.isTerminated();
+          System.gc();
+        } catch (Throwable error) {
+          promise.reject(error);
+          executor.isTerminated();
+          System.gc();
+        }
+      }
+    };
+
+    executor.execute(runnableTask);
+    executor.shutdown();
+  }
+
   // Ativa terminal e faz o pagamento
   @ReactMethod
   public void initializeAndActivatePinPad(String activationCode, Promise promise) {

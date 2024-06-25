@@ -76,6 +76,8 @@ npx expo prebuild -p android --clean
 
 ***doAbort***: aborta a transação atual.
 
+***reprintCustomerReceipt***: permite reimprimir o recibo do cliente da última venda efetuada.
+
 ### Exemplos de uso
 
 Exemplo para ativação de terminal de pin pad.
