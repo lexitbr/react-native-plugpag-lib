@@ -19,6 +19,7 @@ import {
   refundPayment,
   plugPag,
   type PaymentTransactionResponseProps,
+  reprintCustomerReceipt,
 } from 'react-native-plugpag-lib';
 
 import LogoImg from './assets/react-native-pagseguro-plugpag-logo.png';
@@ -145,6 +146,14 @@ export default function App() {
         style={[styles.button, styles.space]}
       >
         <Text style={styles.textButton}>Pagar R$ 25 no crédito</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        onPress={reprintCustomerReceipt}
+        style={[styles.button, styles.space]}
+        disabled={!lastPayment.transactionId}
+      >
+        <Text style={styles.textButton}>Reimprimir via Cliente</Text>
       </TouchableOpacity>
 
       <TouchableOpacity

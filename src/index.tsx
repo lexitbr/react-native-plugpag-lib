@@ -168,6 +168,15 @@ export async function print(filePath: string): Promise<void> {
   }
 }
 
+export async function reprintCustomerReceipt(): Promise<void> {
+  try {
+    await PagseguroPlugpag.reprintCustomerReceipt();
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
 export function useTransactionPaymentEvent() {
   const [transactionPaymentEvent, setTransactionPaymentEvent] =
     useState<TransactionPaymentEventProps>({ code: 0, message: '' });
