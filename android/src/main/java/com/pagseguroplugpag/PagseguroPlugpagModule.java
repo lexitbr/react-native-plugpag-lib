@@ -218,7 +218,7 @@ public class PagseguroPlugpagModule extends ReactContextBaseJavaModule {
       @Override
       public void run() {
         try {
-          PlugPagPrintResult result = plugPag.rereprintCustomerReceipt();
+          PlugPagPrintResult result = plugPag.reprintCustomerReceipt();
 
           if (result.getResult() != 0) {
             throw new AppException(result.getMessage());
