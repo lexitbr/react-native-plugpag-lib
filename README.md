@@ -39,7 +39,7 @@ and add this dependency to the file `/android/app/build.gradle`:
 ```
 dependencies {
     // ... other dependencies
-    implementation 'br.com.uol.pagseguro.plugpagservice.wrapper:wrapper:1.7.6'
+    implementation 'br.com.uol.pagseguro.plugpagservice.wrapper:wrapper:1.29.5'
     ...
 }
 ```
