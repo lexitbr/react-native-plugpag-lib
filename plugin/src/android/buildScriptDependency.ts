@@ -25,21 +25,21 @@ export function setDependenceAppBuildGradle(buildGradleApp: string) {
 }
 
 export const withScriptAppBuildGradle: ConfigPlugin = (config) => {
-  return withAppBuildGradle(config, (config) => {
-    config.modResults.contents = setDependenceAppBuildGradle(
-      config.modResults.contents
+  return withAppBuildGradle(config, (appConfig) => {
+    appConfig.modResults.contents = setDependenceAppBuildGradle(
+      appConfig.modResults.contents
     );
 
-    return config;
+    return appConfig;
   });
 };
 
 export const withBuildScriptDependency: ConfigPlugin = (config) => {
-  return withProjectBuildGradle(config, (config) => {
-    config.modResults.contents = setMavenBuildGradle(
-      config.modResults.contents
+  return withProjectBuildGradle(config, (projectConfig) => {
+    projectConfig.modResults.contents = setMavenBuildGradle(
+      projectConfig.modResults.contents
     );
 
-    return config;
+    return projectConfig;
   });
 };
