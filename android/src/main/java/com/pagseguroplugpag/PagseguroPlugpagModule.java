@@ -559,6 +559,20 @@ public class PagseguroPlugpagModule extends ReactContextBaseJavaModule {
             return;
           }
 
+          // Verificar se o arquivo existe antes de imprimir
+          File imageFile = new File(imagePath);
+          if (!imageFile.exists()) {
+            promise.reject("FILE_NOT_FOUND", "Arquivo de imagem não encontrado: " + imagePath);
+            return;
+          }
+
+          System.out.println("Tentando imprimir arquivo: " + imagePath);
+          System.out.println("Arquivo existe: " + imageFile.exists());
+          System.out.println("Tamanho: " + imageFile.length() + " bytes");
+
+          // Pequeno delay para garantir que o arquivo esteja completamente escrito
+          Thread.sleep(100);
+
           // Cria objeto com informações da impressão
           final PlugPagPrinterData file = new PlugPagPrinterData(imagePath, 4, 10 * 12);
 
@@ -629,10 +643,24 @@ public class PagseguroPlugpagModule extends ReactContextBaseJavaModule {
       // Salvar o bitmap como arquivo temporário
       String fileName = "print_text_" + System.currentTimeMillis() + ".png";
       File tempFile = new File(reactContext.getCacheDir(), fileName);
+
+      // Garantir que o arquivo existe e é válido
+      if (!tempFile.getParentFile().exists()) {
+        tempFile.getParentFile().mkdirs();
+      }
+
       FileOutputStream outputStream = new FileOutputStream(tempFile);
       bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
       outputStream.flush();
       outputStream.close();
+
+      // Verificar se o arquivo foi criado corretamente
+      if (!tempFile.exists() || tempFile.length() == 0) {
+        throw new IOException("Falha ao criar arquivo de imagem");
+      }
+
+      System.out.println("Arquivo de imagem criado: " + tempFile.getAbsolutePath());
+      System.out.println("Tamanho do arquivo: " + tempFile.length() + " bytes");
 
       return tempFile.getAbsolutePath();
     } catch (IOException e) {
