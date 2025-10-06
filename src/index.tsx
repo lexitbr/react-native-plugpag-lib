@@ -177,6 +177,15 @@ export async function reprintCustomerReceipt(): Promise<void> {
   }
 }
 
+export async function printText(text: string): Promise<void> {
+  try {
+    await PagseguroPlugpag.printText(text);
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
 export function useTransactionPaymentEvent() {
   const [transactionPaymentEvent, setTransactionPaymentEvent] =
     useState<TransactionPaymentEventProps>({ code: 0, message: '' });

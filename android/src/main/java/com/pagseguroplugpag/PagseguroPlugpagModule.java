@@ -36,6 +36,13 @@ import br.com.uol.pagseguro.plugpagservice.wrapper.PlugPagPaymentData;
 import br.com.uol.pagseguro.plugpagservice.wrapper.PlugPagPrintResult;
 import br.com.uol.pagseguro.plugpagservice.wrapper.PlugPagPrinterData;
 import br.com.uol.pagseguro.plugpagservice.wrapper.PlugPagPrinterListener;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.Typeface;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import br.com.uol.pagseguro.plugpagservice.wrapper.PlugPagTransactionResult;
 import br.com.uol.pagseguro.plugpagservice.wrapper.PlugPagVoidData;
 import br.com.uol.pagseguro.plugpagservice.wrapper.PlugPagAbortResult;
@@ -515,5 +522,158 @@ public class PagseguroPlugpagModule extends ReactContextBaseJavaModule {
 
     executor.execute(runnableTask);
     executor.shutdown();
+  }
+
+  // Impressão de texto gerando imagem localmente
+  @ReactMethod
+  public void printText(String text, Promise promise) {
+    setAppIdentification();
+
+    PlugPagPrinterListener listener = new PlugPagPrinterListener() {
+      @Override
+      public void onError(@NonNull PlugPagPrintResult plugPagPrintResult) {
+        System.out.print("Message Error=>" + plugPagPrintResult.getMessage());
+        promise.reject("PRINT_ERROR", plugPagPrintResult.getMessage());
+      }
+
+      @Override
+      public void onSuccess(@NonNull PlugPagPrintResult plugPagPrintResult) {
+        System.out.print("Message Success=>" + plugPagPrintResult.getMessage());
+        promise.resolve(plugPagPrintResult.getMessage());
+      }
+    };
+
+    plugPag.setPrinterListener(listener);
+
+    final ExecutorService executor = Executors.newSingleThreadExecutor();
+
+    Runnable runnableTask = new Runnable() {
+      @Override
+      public void run() {
+        try {
+          // Gerar imagem localmente com o texto
+          String imagePath = generateTextImage(text);
+
+          if (imagePath == null) {
+            promise.reject("IMAGE_GENERATION_ERROR", "Falha ao gerar imagem do texto");
+            return;
+          }
+
+          // Cria objeto com informações da impressão
+          final PlugPagPrinterData file = new PlugPagPrinterData(imagePath, 4, 10 * 12);
+
+          PlugPagPrintResult result = plugPag.printFromFile(file);
+
+          final WritableMap map = Arguments.createMap();
+          map.putInt("retCode", result.getResult());
+          map.putString("message", result.getMessage());
+          map.putString("errorCode", result.getErrorCode());
+
+          System.out.print("Message =>" + result.getMessage());
+
+          if (result.getResult() != 0) {
+            throw new AppException(result.getMessage());
+          }
+
+          promise.resolve(map);
+          executor.isTerminated();
+          System.gc();
+        } catch (Throwable error) {
+          promise.reject(error);
+          executor.isTerminated();
+          System.gc();
+        }
+      }
+    };
+
+    executor.execute(runnableTask);
+    executor.shutdown();
+  }
+
+  // Método auxiliar para gerar imagem com texto
+  private String generateTextImage(String text) {
+    try {
+      // Configurações do texto
+      int textSize = 20; // Aumentado de 16 para 20
+      int padding = 15; // Aumentado de 10 para 15
+      int maxWidth = 384; // Largura ajustada para 384px
+
+      // Configurar a pintura do texto
+      Paint paint = new Paint();
+      paint.setTextSize(textSize);
+      paint.setTypeface(Typeface.DEFAULT_BOLD); // Mudado para BOLD
+      paint.setColor(android.graphics.Color.BLACK);
+      paint.setTextAlign(Paint.Align.LEFT);
+      paint.setAntiAlias(true);
+      paint.setFakeBoldText(true); // Adiciona negrito extra
+
+      // Quebrar texto em linhas se necessário
+      String[] lines = breakTextIntoLines(text, paint, maxWidth - 2 * padding);
+
+      // Calcular dimensões
+      float textHeight = textSize + 4; // Adiciona espaçamento entre linhas
+      int totalHeight = (int) (lines.length * textHeight + 2 * padding);
+      int width = maxWidth;
+
+      // Criar o bitmap
+      Bitmap bitmap = Bitmap.createBitmap(width, totalHeight, Bitmap.Config.ARGB_8888);
+      Canvas canvas = new Canvas(bitmap);
+      canvas.drawColor(android.graphics.Color.WHITE);
+
+      // Desenhar cada linha do texto
+      for (int i = 0; i < lines.length; i++) {
+        float y = textHeight + padding + (i * textHeight);
+        canvas.drawText(lines[i], padding, y, paint);
+      }
+
+      // Salvar o bitmap como arquivo temporário
+      String fileName = "print_text_" + System.currentTimeMillis() + ".png";
+      File tempFile = new File(reactContext.getCacheDir(), fileName);
+      FileOutputStream outputStream = new FileOutputStream(tempFile);
+      bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
+      outputStream.flush();
+      outputStream.close();
+
+      return tempFile.getAbsolutePath();
+    } catch (IOException e) {
+      e.printStackTrace();
+      return null;
+    }
+  }
+
+  // Método auxiliar para quebrar texto em linhas
+  private String[] breakTextIntoLines(String text, Paint paint, int maxWidth) {
+    // Primeiro, dividir por quebras de linha explícitas (\n)
+    String[] explicitLines = text.split("\\n");
+    java.util.List<String> finalLines = new java.util.ArrayList<>();
+
+    for (String explicitLine : explicitLines) {
+      // Para cada linha explícita, quebrar por largura se necessário
+      String[] words = explicitLine.split(" ");
+      StringBuilder currentLine = new StringBuilder();
+
+      for (String word : words) {
+        String testLine = currentLine.length() > 0 ? currentLine + " " + word : word;
+        float textWidth = paint.measureText(testLine);
+
+        if (textWidth <= maxWidth) {
+          currentLine = new StringBuilder(testLine);
+        } else {
+          if (currentLine.length() > 0) {
+            finalLines.add(currentLine.toString());
+            currentLine = new StringBuilder(word);
+          } else {
+            // Palavra muito longa, adiciona mesmo assim
+            finalLines.add(word);
+          }
+        }
+      }
+
+      if (currentLine.length() > 0) {
+        finalLines.add(currentLine.toString());
+      }
+    }
+
+    return finalLines.toArray(new String[0]);
   }
 }

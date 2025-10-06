@@ -20,6 +20,7 @@ import {
   plugPag,
   type PaymentTransactionResponseProps,
   reprintCustomerReceipt,
+  printText,
 } from 'react-native-plugpag-lib';
 
 import LogoImg from './assets/react-native-pagseguro-plugpag-logo.png';
@@ -124,6 +125,94 @@ export default function App() {
     }
   }
 
+  async function handlePrintText() {
+    try {
+      setIsModalVisible(true);
+
+      const testText = `TESTE DE IMPRESSÃO DE TEXTO
+
+Data: ${new Date().toLocaleDateString('pt-BR')}
+Hora: ${new Date().toLocaleTimeString('pt-BR')}
+
+Este é um teste de impressão de texto
+gerado localmente no terminal PlugPag.
+
+Funcionalidades:
+- Geração de imagem local
+- Quebra de linha automática
+- Sem necessidade de download
+- Impressão rápida e eficiente
+
+Fim do teste.`;
+
+      await printText(testText);
+
+      setIsModalVisible(false);
+      Alert.alert('Sucesso', 'Texto impresso com sucesso!');
+    } catch (error) {
+      console.log(error);
+      setIsModalVisible(false);
+      Alert.alert('Erro', 'Falha ao imprimir texto: ' + error);
+    }
+  }
+
+  async function handlePrintComprovante() {
+    try {
+      setIsModalVisible(true);
+
+      const comprovante = `
+========================
+COMPROVANTE DE VENDA
+========================
+
+Data: ${new Date().toLocaleDateString('pt-BR')}
+Hora: ${new Date().toLocaleTimeString('pt-BR')}
+Terminal: PlugPag Test
+
+========================
+DADOS DA TRANSAÇÃO
+========================
+
+Produto: Produto de Teste
+Quantidade: 1 unidade
+Valor Unitário: R$ 25,00
+Subtotal: R$ 25,00
+Desconto: R$ 0,00
+Total: R$ 25,00
+
+========================
+FORMA DE PAGAMENTO
+========================
+
+Tipo: Cartão de Crédito
+Bandeira: Visa
+Parcelas: 1x de R$ 25,00
+Status: Aprovado
+
+========================
+INFORMAÇÕES ADICIONAIS
+========================
+
+Código da Transação: TEST123456
+NSU: 789012345
+Autorização: 123456
+
+========================
+Obrigado pela compra!
+Volte sempre!
+========================`;
+
+      await printText(comprovante);
+
+      setIsModalVisible(false);
+      Alert.alert('Sucesso', 'Comprovante impresso com sucesso!');
+    } catch (error) {
+      console.log(error);
+      setIsModalVisible(false);
+      Alert.alert('Erro', 'Falha ao imprimir comprovante: ' + error);
+    }
+  }
+
   return (
     <ScrollView style={styles.container}>
       <View style={styles.header}>
@@ -157,6 +246,20 @@ export default function App() {
       </TouchableOpacity>
 
       <TouchableOpacity
+        onPress={handlePrintText}
+        style={[styles.button, styles.space, styles.buttonGreen]}
+      >
+        <Text style={styles.textButton}>Imprimir Texto de Teste</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        onPress={handlePrintComprovante}
+        style={[styles.button, styles.space, styles.buttonBlue]}
+      >
+        <Text style={styles.textButton}>Imprimir Comprovante de Venda</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
         onPress={handleDoPaymentDebitType}
         style={[styles.button, styles.space]}
       >
@@ -169,7 +272,7 @@ export default function App() {
         style={[
           styles.button,
           styles.space,
-          !lastPayment.transactionId && { opacity: 0.3 },
+          !lastPayment.transactionId && styles.buttonDisabled,
         ]}
       >
         <Text style={styles.textButton}>Estornar última transação</Text>
@@ -231,6 +334,15 @@ const styles = StyleSheet.create({
   },
   space: {
     marginBottom: 12,
+  },
+  buttonGreen: {
+    backgroundColor: '#28a745',
+  },
+  buttonBlue: {
+    backgroundColor: '#007bff',
+  },
+  buttonDisabled: {
+    opacity: 0.3,
   },
   centeredView: {
     flex: 1,
